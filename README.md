@@ -4,15 +4,13 @@
 
 填好啦是一款 Microsoft Edge 秋招网申扩展。把教育、实习、项目等资料录入一次，打开下一家公司的申请表时，就能在侧边栏填写当前页。所有字段都可以留空，正填到哪一项，就从哪一项开始。
 
-## 技术栈
-
-| 层级 | 技术 | 用途 |
-| --- | --- | --- |
-| 扩展平台 | Edge 扩展 · Manifest V3 | 声明权限、后台 Service Worker 和侧边栏 |
-| 界面与表单逻辑 | HTML、CSS、原生 JavaScript（ES Modules） | 渲染侧边栏，读取网页表单、匹配字段并填入答案 |
-| 浏览器 API | `chrome.sidePanel`、`chrome.tabs`、`chrome.scripting` | 打开侧边栏、定位当前标签页、执行表单填写 |
-| 本地存储 | `chrome.storage.local` | 保存用户资料、附件和字段匹配规则 |
-| 开发测试 | Node.js、Playwright | 验证字段匹配和 Edge 中的完整填写流程 |
+<p align="center">
+  <img alt="Microsoft Edge · Manifest V3" src="https://img.shields.io/badge/Edge-Manifest_V3-2563EB?style=flat-square">
+  <img alt="JavaScript · ES Modules" src="https://img.shields.io/badge/JavaScript-ES_Modules-916300?style=flat-square">
+  <img alt="HTML · 5" src="https://img.shields.io/badge/HTML-5-C2410C?style=flat-square">
+  <img alt="CSS · 原生" src="https://img.shields.io/badge/CSS-%E5%8E%9F%E7%94%9F-7C3AED?style=flat-square">
+  <img alt="Playwright · E2E" src="https://img.shields.io/badge/Playwright-E2E-15803D?style=flat-square">
+</p>
 
 扩展直接从源码加载，无需安装运行依赖或构建。
 
