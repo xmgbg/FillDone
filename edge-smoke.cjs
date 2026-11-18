@@ -4,6 +4,7 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),http
 (async()=>{
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'filldone-smoke-')), ext=path.join(root,'extension');
   fs.mkdirSync(ext);
+  fs.cpSync(path.join(__dirname,'icons'),path.join(ext,'icons'),{recursive:true});
   for(const name of ['panel.html','panel.css','schema.js','panel.js','background.js','task.js','page.js','match.js','learn.js'])fs.copyFileSync(path.join(__dirname,name),path.join(ext,name));
   const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'manifest.json'),'utf8'));
   manifest.host_permissions=['http://127.0.0.1/*'];
