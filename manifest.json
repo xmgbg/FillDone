@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "填好啦 · FillDone",
+  "version": "0.1.0",
+  "description": "本地保存秋招资料，按页填写网申。",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "unlimitedStorage"
+  ],
+  "action": {
+    "default_title": "打开填好啦"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  }
+}
