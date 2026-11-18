@@ -30,12 +30,27 @@ async function route(selection) {
 }
 
 back.addEventListener('click', async () => {
-  show('home');
+  const showSidebarHome = () => {
+    show('home');
+    document.getElementById('show-fill').focus();
+  };
+  if (!chrome.action.openPopup || !chrome.sidePanel.close) {
+    showSidebarHome();
+    return;
+  }
+
+  back.disabled = true;
   try {
     await chrome.action.openPopup({ windowId });
   } catch {
-    document.getElementById('show-fill').focus();
+    showSidebarHome();
+    return;
+  } finally {
+    back.disabled = false;
   }
+
+  // Once the popup is open, keep the sidebar home hidden even if closing fails.
+  await chrome.sidePanel.close({ windowId }).catch(() => {});
 });
 document.getElementById('show-fill').onclick = () => { show('fill'); fillPage(); };
 document.getElementById('show-profile').onclick = () => show('profile');

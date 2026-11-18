@@ -84,6 +84,30 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),http
     await page.reload();await press('一键填写当前页');await page.waitForFunction(()=>document.querySelector('#extra').value==='yes');
     await panel.setViewportSize({width:285,height:620});
     assert.equal(await panel.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false);
+    await panel.evaluate(() => {
+      window.returnActions = [];
+      chrome.action.openPopup = async options => {
+        window.returnActions.push(['open', options.windowId]);
+      };
+      chrome.sidePanel.close = async options => {
+        window.returnActions.push(['close', options.windowId]);
+      };
+    });
+    await panel.locator('#home-link').click();
+    await panel.waitForFunction(() => window.returnActions.length === 2);
+    const actions = await panel.evaluate(() => window.returnActions);
+    assert.deepEqual(actions.map(([action]) => action), ['open', 'close']);
+    assert.equal(actions[0][1], actions[1][1]);
+    assert.equal(await panel.locator('#home-view').isVisible(), false);
+
+    await panel.evaluate(() => {
+      chrome.action.openPopup = async () => { throw Error('Popup unavailable'); };
+    });
+    await panel.locator('#home-link').click();
+    await panel.locator('#home-view').waitFor();
+    assert.equal(await panel.locator('#fill-view').isVisible(), false);
+    assert.equal(await panel.evaluate(() => document.activeElement.id), 'show-fill');
+
     assert.deepEqual(errors,[]);
     await panel.close();
     const nativePopup = await context.newPage();
