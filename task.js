@@ -31,8 +31,9 @@ fill.onclick=async()=>{
     for(const [i,field] of current.fields.entries()){
       const mapping=matched[i];if(!mapping)continue;
       const group=mapping.section, key=group+'|'+field.block;
-      if(!single.has(group)&&(profile[group]?.length||0)>1&&!pickers.has(key)){
-        const label=el('label',group+' · 网页区块 '+(field.block+1));resultBox.append(label);pickers.set(key,pickRow(group,label));
+      const blocks=new Set(current.fields.filter((f,j)=>matched[j]?.section===group).map(f=>f.block));
+      if(!single.has(group)&&((profile[group]?.length||0)>1||blocks.size>1)&&!pickers.has(key)){
+        const label=el('label',group+' · 网页区块 '+(field.block+1));resultBox.append(label);const picker=pickRow(group,label);if(blocks.size>1)picker.value='';pickers.set(key,picker);
       }
     }
     const report=el('div'); const session=current;

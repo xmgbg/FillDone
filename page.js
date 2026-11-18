@@ -4,7 +4,7 @@ export function scanPage(sectionNames) {
   for(const [label,section] of Object.entries({'个人信息':'基本信息','个人资料':'基本信息','个人基本信息':'基本信息','实习经历':'工作/实习经历','工作经历':'工作/实习经历','项目经历':'项目经验','教育背景':'教育经历','家庭信息':'家庭成员'}))names.set(label,section);
   const sectionFor=text=>names.get((text||'').trim().replace(/／/g,'/').replace(/\s*[（(]?\d+[)）]?$/,'').trim());
   const headers=[...document.querySelectorAll('h1,h2,h3,h4,h5,legend,[role=heading],.section-title')].filter(h=>sectionFor(h.textContent));
-  const elements=new Map(), descriptors=[], blocks=new Map();
+  const elements=new Map(), descriptors=[], blocks=new Map(), radioGroups=new Map();
   const visible=e=>e.getClientRects().length && getComputedStyle(e).visibility==='visible' && !e.closest('[inert],[aria-hidden=true]');
   const labelText=e=>{
     if(!e)return '';
@@ -24,12 +24,22 @@ export function scanPage(sectionNames) {
     const section=sectionFor(container?.getAttribute('data-section'))||sectionFor(container?.querySelector(':scope > legend,:scope > h2,:scope > h3')?.textContent)||sectionFor(heading?.textContent)||'';
     const block=node.closest('[data-record],fieldset')||heading||container||document.body;
     if(!blocks.has(block))blocks.set(block,blocks.size);
+    let options;
+    if(node.type==='radio'){
+      const owner=node.closest('[role=radiogroup],fieldset,.form-group,.ant-form-item,.el-form-item');
+      const caption=owner?.getAttribute('aria-label')||labelText(owner?.querySelector('legend,.form-label,.ant-form-item-label,.el-form-item__label'));
+      if(!caption||!node.name)continue;
+      options=[...document.getElementsByName(node.name)].filter(n=>n.type==='radio'&&n.form===node.form&&owner.contains(n));
+      if(options[0]!==node)continue;
+      label=caption;
+    }
     const id=descriptors.length;
+    if(options)radioGroups.set(id,options);
     elements.set(id,node);
     descriptors.push({id,label,section,block:blocks.get(block)});
   }
   globalThis.fillDoneSession?.stop?.();
-  globalThis.fillDoneSession={elements,descriptors,token:crypto.randomUUID()};
+  globalThis.fillDoneSession={elements,descriptors,radioGroups,token:crypto.randomUUID()};
   return {fields:descriptors,token:globalThis.fillDoneSession.token,origin:location.origin};
 }
 export async function applyPage(token,plan) {
@@ -40,7 +50,15 @@ export async function applyPage(token,plan) {
     const node=session.elements.get(id);
     const report=reason=>results.push({id,reason});
     if(!node?.isConnected||!node.getClientRects().length||node.disabled||node.readOnly){report('页面字段已变化');continue}
-    if(node.type==='radio'||node.getAttribute('role')==='combobox'&&node.tagName!=='SELECT'||node.hasAttribute('list')){report('请在网页选择');continue}
+    if(node.type==='radio'){
+      const options=session.radioGroups.get(id)||[];
+      if(options.some(n=>n.checked)){report('保留已有值');continue}
+      const matches=options.filter(n=>!n.disabled&&[n.getAttribute('aria-label'),n.labels?.[0]?.textContent.trim(),n.value].includes(value));
+      if(matches.length===1){matches[0].click();report(matches[0].checked?'已填写':'请核对')}
+      else report('选项需要确认');
+      continue;
+    }
+    if(node.getAttribute('role')==='combobox'&&node.tagName!=='SELECT'||node.hasAttribute('list')){report('请在网页选择');continue}
     if(node.type==='checkbox'){
       if(node.checked){report('保留已有值');continue}
       if(['是','true','至今'].includes(value)){node.click();report(node.checked?'已填写':'请核对')}
