@@ -32,7 +32,7 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),http
     await page.waitForFunction(()=>document.querySelector('#member').value==='成员乙');
     await panel.getByRole('heading',{name:'记住新字段'}).waitFor();
     await page.locator('#extra').pressSequentially('yes');await page.locator('#extra').press('Tab');
-    await panel.getByRole('button',{name:'保存此项'}).waitFor();await press('保存此项');
+    await panel.getByLabel('批量保存此项').check();await press('保存已勾选项');
     if(await panel.locator('#status').textContent()==='网页内容已更新，请核对后保存')await press('保存此项');
     await panel.waitForFunction(()=>document.querySelector('#status').textContent.includes('下次可匹配'));
     await page.reload();await press('一键填写当前页');await page.waitForFunction(()=>document.querySelector('#extra').value==='yes');

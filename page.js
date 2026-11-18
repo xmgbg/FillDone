@@ -16,7 +16,7 @@ export function scanPage(sectionNames) {
     if(!visible(node)||node.disabled||node.readOnly||['hidden','password','submit','button','image','reset','search','color','range'].includes(node.type))continue;
     const groupItem=node.closest('.ant-form-item,.el-form-item,.form-group,.form-item');
     const aria=(node.getAttribute('aria-labelledby')||'').split(/\s+/).map(id=>labelText(document.getElementById(id))).join(' ').trim();
-    let label=node.getAttribute('aria-label')||aria||labelText(node.labels?.[0])||labelText(groupItem?.querySelector('label,.el-form-item__label'))||node.placeholder||node.name;
+    let label=node.getAttribute('aria-label')||aria||labelText(node.labels?.[0])||labelText(groupItem?.querySelector('label,.el-form-item__label'))||labelText(node.previousElementSibling?.matches('label,.label,.form-label')?node.previousElementSibling:null)||node.placeholder||node.name;
     label=(label||'').replace(/^请(输入|填写|选择)(您的|你的)?/,'').trim();
     if(!label||/验证码|密码|口令|otp|password|one-time-code/i.test([label,node.autocomplete,node.name].join(' ')))continue;
     const container=node.closest('fieldset,section,[data-section]');

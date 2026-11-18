@@ -33,7 +33,17 @@ task.addEventListener('scanned',async()=>{
   try{await run(watchManual,[session.token,ids])}catch{return}
   if(session!==current)return;
   const heading=el('h2','记住新字段'), hint=el('small','在网页上补填后，可以在这里保存。'), list=el('div');
-  box.append(heading,hint,list);
+  const bulk=el('button','保存已勾选项');
+  bulk.onclick=async()=>{
+    bulk.disabled=true;
+    try{
+      for(const input of list.querySelectorAll('input:checked')){
+        const action=input.closest('fieldset').querySelector('button');
+        if(action)await action.onclick();
+      }
+    }finally{bulk.disabled=false}
+  };
+  box.append(heading,hint,list,bulk);
   timer=setInterval(async()=>{
     let changes;
     try{changes=await run(readManual,[session.token])}catch{if(current===session)reset();return}
@@ -46,6 +56,8 @@ task.addEventListener('scanned',async()=>{
 });
 function candidate(list,session,field,initial){
   const item=el('fieldset');item.append(el('legend',field.label));
+  const choose=el('label','批量保存此项 '), checkbox=el('input');checkbox.type='checkbox';
+  choose.append(checkbox);item.append(choose);
   const preview=el('small',initial);item.append(preview);
   const addSelect=(label)=>{const wrap=el('label',label), select=el('select');wrap.append(select);item.append(wrap);return select};
   const section=addSelect('所属资料分类');
@@ -60,6 +72,7 @@ function candidate(list,session,field,initial){
     rowHost.replaceChildren('对应记录'); recordSelect=null;
     if(!section.value)return;
     const records=rows(profile,section.value);
+    if(!records.length)records.push({});
     const keys=new Set(records.flatMap(r=>fields(section.value,r)));
     for(const key of keys)if(!key.includes('〔本站 ')&&!['证件照','作品集'].includes(key))target.add(new Option('关联已有字段 · '+key,'alias:'+key));
     rowHost.hidden=single.has(section.value);
