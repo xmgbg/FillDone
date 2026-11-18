@@ -1,2 +1,2 @@
-chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true});
+chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: false});
 chrome.storage.local.setAccessLevel({accessLevel: 'TRUSTED_CONTEXTS'});

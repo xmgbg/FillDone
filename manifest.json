@@ -12,6 +12,7 @@
   ],
   "action": {
     "default_title": "打开填好啦",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",

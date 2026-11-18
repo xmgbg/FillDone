@@ -9,7 +9,9 @@ export async function run(func,args){
   return result;
 }
 const fill=el('button','一键填写当前页'); fill.className='primary';
-const resultBox=el('div');task.append(el('h2','当前网申页'),fill,resultBox);
+const title = el('h1', '填写当前页');
+const resultBox = el('div');
+task.append(title, resultBox, fill);
 export const ruleKey=(field)=>JSON.stringify([current.origin,locationGroup(field),field.label]);
 function locationGroup(field){return field.section||''}
 export const rules=(await chrome.storage.local.get('rules')).rules||{};
@@ -21,12 +23,26 @@ export function pickRow(section,host){
   if(select.options.length===2)select.value='0';
   host.append(select);return select;
 }
-fill.onclick=async()=>{
-  fill.disabled=true;resultBox.replaceChildren();current=null;task.dispatchEvent(new Event('resetpage'));
+fill.onclick = () => fillPage();
+export async function fillPage(expectedTabId) {
+  if (fill.disabled) return;
+  status('');
+  fill.disabled = true;
+  fill.textContent = '正在填写…';
+  title.textContent = '填写当前页';
+  resultBox.replaceChildren();current=null;task.dispatchEvent(new Event('resetpage'));
   try{
     const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
+    if (expectedTabId != null && tab?.id !== expectedTabId) {
+      status('当前标签页已切换，请重新点击填写。');
+      return;
+    }
     const [entry]=await chrome.scripting.executeScript({target:{tabId:tab.id},func:scanPage,args:[Object.keys(sections)]});
     current={...entry.result,tabId:tab.id,documentId:entry.documentId};
+    if (!current.fields.length) {
+      status('当前页面没有找到可填写的字段。');
+      return;
+    }
     const pickers=new Map(), matched=current.fields.map(f=>lookup(f));
     for(const [i,field] of current.fields.entries()){
       const mapping=matched[i];if(!mapping)continue;
@@ -53,16 +69,45 @@ fill.onclick=async()=>{
       }
       const usable=plan.filter(p=>{if(occurrences.get(p.identity)===1)return true;notes.set(p.id,'同组有重复字段，请手动填写');return false});
       for(const {id,reason} of await run(applyPage,[current.token,usable]))notes.set(id,reason);
-      const done=[...notes.values()].filter(v=>v==='已填写').length;
-      report.replaceChildren(el('p','已填写 '+done+' 项，共识别 '+current.fields.length+' 个字段。'));
-      const details=el('details');details.append(el('summary','查看各字段结果'));
-      for(const field of current.fields)details.append(el('div',field.label+' · '+notes.get(field.id)));
-      report.append(details);
+      title.textContent = '填写结果';
+      renderResults(report, current.fields, notes);
     };
     if(pickers.size){
       const confirm=el('button','使用所选记录填写');confirm.onclick=()=>write().catch(()=>status('页面已变化，请重新扫描'));resultBox.append(confirm);
     }
     resultBox.append(report);await write();task.dispatchEvent(new Event('scanned'));
   }catch{status('请在网申标签页点击工具栏的填好啦图标，再填写当前页。')}
-  finally{fill.disabled=false}
-};
+  finally {
+    fill.disabled = false;
+    fill.textContent = '一键填写当前页';
+  }
+}
+
+function renderResults(report, fields, notes) {
+  const completed = fields.filter(field => notes.get(field.id) === '已填写');
+  const kept = fields.filter(field => notes.get(field.id) === '保留已有值');
+  const pending = fields.filter(field => !['已填写', '保留已有值'].includes(notes.get(field.id)));
+  const totals = el('dl');
+  totals.className = 'totals';
+  for (const [label, count] of [['已填写', completed.length], ['待补填', pending.length], ['已保留', kept.length]]) {
+    const group = el('div');
+    group.append(el('dt', label), el('dd', String(count)));
+    totals.append(group);
+  }
+  const details = el('details');
+  details.append(el('summary', '查看全部字段'), resultList(fields, notes));
+  report.replaceChildren(totals);
+  if (pending.length) report.append(el('h2', '待补填'), resultList(pending, notes));
+  report.append(details);
+}
+
+function resultList(fields, notes) {
+  const list = el('ul');
+  list.className = 'result-list';
+  for (const field of fields) {
+    const row = el('li');
+    row.append(el('span', field.label), el('small', notes.get(field.id)));
+    list.append(row);
+  }
+  return list;
+}

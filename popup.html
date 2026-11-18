@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>填好啦 · FillDone</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body class="popup">
+  <header class="brand"><img src="icons/icon-32.png" width="28" height="28" alt=""><strong>填好啦</strong></header>
+  <main class="launcher">
+    <button class="entry" type="button" data-view="fill" disabled>
+      <span class="entry-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6"/></svg></span>
+      填写当前页<span class="chevron" aria-hidden="true"></span>
+    </button>
+    <button class="entry" type="button" data-view="profile" disabled>
+      <span class="entry-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M11 4H4v16h16v-7M9 15l1-4 8-8 3 3-8 8z"/></svg></span>
+      修改资料<span class="chevron" aria-hidden="true"></span>
+    </button>
+    <p id="popup-status" class="feedback" role="status"></p>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

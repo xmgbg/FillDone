@@ -6,7 +6,7 @@ let writes=Promise.resolve();
 export function save() {
   const snapshot=structuredClone(profile);
   writes=writes.catch(()=>{}).then(()=>chrome.storage.local.set({profile:snapshot}));
-  return writes.then(()=>status('资料已保存在本机'),()=>status('保存失败，请检查扩展存储空间后重试'));
+  return writes.then(()=>{},()=>status('保存失败，请检查扩展存储空间后重试'));
 }
 export function el(tag,text) {const node=document.createElement(tag); if(text)node.textContent=text; return node;}
 const category=$('category');

@@ -21,9 +21,12 @@ function readManual(token){
   const s=globalThis.fillDoneSession;
   return s?.token===token?[...(s.values||[])]:[];
 }
-const box=el('section');task.after(box);
+const box=el('section');
+box.id='learn-fields';
+box.hidden=true;
+task.after(box);
 let timer,seen=new Set();
-function reset(){clearInterval(timer);seen.clear();box.replaceChildren()}
+function reset(){clearInterval(timer);seen.clear();box.replaceChildren();box.hidden=true}
 task.addEventListener('resetpage',reset);
 window.addEventListener('pagehide',reset);
 task.addEventListener('scanned',async()=>{
@@ -32,7 +35,7 @@ task.addEventListener('scanned',async()=>{
   if(!ids.length)return;
   try{await run(watchManual,[session.token,ids])}catch{return}
   if(session!==current)return;
-  const heading=el('h2','记住新字段'), hint=el('small','在网页上补填后，可以在这里保存。'), list=el('div');
+  const heading=el('h2','记住新字段'), list=el('div');
   const bulk=el('button','保存已勾选项');
   bulk.onclick=async()=>{
     bulk.disabled=true;
@@ -43,14 +46,14 @@ task.addEventListener('scanned',async()=>{
       }
     }finally{bulk.disabled=false}
   };
-  box.append(heading,hint,list,bulk);
+  box.append(heading,list,bulk);
   timer=setInterval(async()=>{
     let changes;
     try{changes=await run(readManual,[session.token])}catch{if(current===session)reset();return}
     if(current!==session)return;
     for(const [id,value] of changes){
       if(seen.has(id)||!value)continue;
-      seen.add(id);candidate(list,session,session.fields[id],value);
+      seen.add(id);box.hidden=false;candidate(list,session,session.fields[id],value);
     }
   },900);
 });

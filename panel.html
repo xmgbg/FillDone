@@ -1,8 +1,31 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>填好啦 · FillDone</title><link rel="stylesheet" href="panel.css"><main>
-<header><img src="icons/icon-32.png" width="28" height="28" alt="" style="align-self:center"><strong>填好啦</strong><span>FillDone</span></header>
-<section id="task"></section><p id="status" role="status"></p>
-<h2>我的资料</h2><label>资料分类<select id="category"></select></label>
-<div id="records"></div><button id="add" type="button">添加一条记录</button>
-</main><script type="module" src="panel.js"></script></html>
-<script type="module" src="task.js"></script>
-<script type="module" src="learn.js"></script>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>填好啦 · FillDone</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="brand"><img src="icons/icon-32.png" width="28" height="28" alt=""><strong>填好啦</strong></header>
+  <main class="workspace">
+    <button id="home-link" class="text-button" type="button"><span aria-hidden="true">‹</span> 主页</button>
+    <p id="status" class="feedback" role="status"></p>
+    <nav id="home-view" class="launcher" aria-label="主页" hidden>
+      <button class="entry" type="button" id="show-fill">填写当前页<span class="chevron" aria-hidden="true"></span></button>
+      <button class="entry" type="button" id="show-profile">修改资料<span class="chevron" aria-hidden="true"></span></button>
+    </nav>
+    <section id="fill-view" hidden>
+      <section id="task"></section>
+    </section>
+    <section id="profile-view" hidden>
+      <h1>我的资料</h1>
+      <label for="category" class="sr-only">资料分类</label>
+      <select id="category"></select>
+      <div id="records"></div>
+      <button id="add" class="add-record" type="button">＋ 添加一条记录</button>
+    </section>
+  </main>
+  <script type="module" src="panel-nav.js"></script>
+</body>
+</html>
