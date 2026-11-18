@@ -4,13 +4,25 @@
 
 填好啦是一款 Microsoft Edge 秋招网申扩展。把教育、实习、项目等资料录入一次，打开下一家公司的申请表时，就能在侧边栏填写当前页。所有字段都可以留空，正填到哪一项，就从哪一项开始。
 
+## 技术栈
+
+| 层级 | 技术 | 用途 |
+| --- | --- | --- |
+| 扩展平台 | Edge 扩展 · Manifest V3 | 声明权限、后台 Service Worker 和侧边栏 |
+| 界面与表单逻辑 | HTML、CSS、原生 JavaScript（ES Modules） | 渲染侧边栏，读取网页表单、匹配字段并填入答案 |
+| 浏览器 API | `chrome.sidePanel`、`chrome.tabs`、`chrome.scripting` | 打开侧边栏、定位当前标签页、执行表单填写 |
+| 本地存储 | `chrome.storage.local` | 保存用户资料、附件和字段匹配规则 |
+| 开发测试 | Node.js、Playwright | 验证字段匹配和 Edge 中的完整填写流程 |
+
+扩展直接从源码加载，无需安装运行依赖或构建。
+
 ## 安装到 Edge
 
 1. 在本仓库选择 **Code → Download ZIP**，解压到一个固定目录。也可以运行 `git clone https://github.com/xmgbg/FillDone.git`。
 2. 在 Edge 地址栏打开 `edge://extensions`，开启「开发人员模式」，点击「加载解压缩的扩展」。
 3. 选择包含 `manifest.json` 的目录。打开「扩展」菜单，把蓝色的「小回车」图标固定到工具栏。
 
-本项目使用原生 JavaScript、HTML 和 CSS，加载后即可使用。更新本地代码后，在扩展管理页点击「重新加载」。
+更新本地代码后，在扩展管理页点击「重新加载」。
 
 ## 第一次填写
 
